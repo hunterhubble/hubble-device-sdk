@@ -14,9 +14,17 @@
 
 LOG_MODULE_REGISTER(main);
 
-/* Replace it properly for real use */
-static uint64_t _unix_time_unused = 0xdeadbeef;
-static uint8_t _key_unused[CONFIG_HUBBLE_KEY_SIZE];
+#if __has_include("key.c")
+#include "key.c"
+#else
+static uint8_t master_key[CONFIG_HUBBLE_KEY_SIZE]; /* zero placeholder */
+#endif
+
+#if __has_include("time.c")
+#include "time.c"
+#else
+static uint64_t unix_time; /* zero placeholder */
+#endif
 
 #ifdef CONFIG_SAMPLE_PROVIDE_SAT_BOARD_SUPPORT
 
@@ -52,7 +60,7 @@ int main(void)
 
 	LOG_DBG("Hubble Network Sat Sample started");
 
-	err = hubble_init(_unix_time_unused, _key_unused);
+	err = hubble_init(unix_time, master_key);
 	if (err != 0) {
 		LOG_ERR("Failed to initialize Hubble Sat Network");
 		goto end;
